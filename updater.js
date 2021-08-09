@@ -3,7 +3,7 @@ function recorder1() {
 	this.data = {};
 	this.put = function (origin, target, data) {
 		if (!this.data[origin]) this.data[origin] = {};
-		this.data[origin][target] = data;
+		this.data[origin][target] = data.split(",");
 	}
 }
 if (typeof wrapper === 'undefined') wrapper = new recorder1();
@@ -24,7 +24,7 @@ window.onload = function () {
 			var arrow = arrowLookup[target];
 			var arrowKey = key.replace(">"+target, "."+arrow)
 			var origin = key.replace(">"+target, "")
-			if (wrapper) {wrapper.put(origin, target, data[key])}
+			if (wrapper) {wrapper.put(origin, target, data[key].join(","))}
 
 			var element = document.querySelector(".text." + arrowKey);
 			if (element) {
