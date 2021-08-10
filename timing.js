@@ -1,6 +1,7 @@
 //mode:simple random
 //todo: more complex mode
 function startUpdate(callback) {
+	console.log("timing.js startUpdate")
 	simpleStartUpdate(callback)
 }
 
