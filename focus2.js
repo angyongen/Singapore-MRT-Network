@@ -1,51 +1,71 @@
-var isDragging = false;
-var x; var y;
-var bx = 0; var by = 0;
+
 var map;
 var mapTransformer;
-let scale = 1;
-var mapWidth = 2099;
-var mapHeight = 1174.8;
+//cx, cy are in client coordinates
+var isDragging = false; var cx, cy;
+//bx, by are in scaled coordinates
+var bx = 0; var by = 0; var scale = 1;
+//mapWidth, mapHeight are in map coordinates
+const mapWidth = 2099; const mapHeight = 1174.8;
+//client coordinates * mapInitialScale = scaled coordinates
+//scaled coordinates / scale = map coordinates
+
+var lastClientWidth, lastClientHeight, lastInitialScale;
 function getMapInitialScale() {
-  return Math.max(mapWidth/map.clientWidth, mapHeight/map.clientHeight);
+  if (map.clientWidth != lastClientWidth || map.clientHeight != lastClientHeight) {
+    lastInitialScale = Math.min(mapWidth/map.clientWidth, mapHeight/map.clientHeight);
+  }
+  return lastInitialScale;
 }
-function updateBounds() {
-  console.log(bx)
+function getCurrentBoundsMapCoordinates() {
+  var iscale = getMapInitialScale()
+  return {x:-bx/scale,y:-by/scale,width:map.clientWidth*iscale/scale,height:map.clientHeight*iscale/scale}
+}
+function translateMapCoordinatesRelative(dx, dy) {
+  bx -= dx*scale;
+  by -= dy*scale;
+}
+function applyBounds() {
+  //var b = getCurrentBoundsMapCoordinates();
+  //console.log(b.x + "->" + (b.x + b.width) + ", " + b.y + "->" +(b.y + b.height))
   mapTransformer.setAttribute("transform", `translate(${bx}, ${by}) scale(${scale})`);
 }
 function pressDownHandler(e) {
-  x = e.offsetX;
-  y = e.offsetY;
+  cx = e.offsetX;
+  cy = e.offsetY;
   isDragging = true;
 }
 function moveHandler(e) {
   if ((e.buttons & 1) == 0) isDragging = false
   if (isDragging === true) {
-    var dx = e.offsetX - x;
-    var dy = e.offsetY - y;
+    var dx = e.offsetX - cx;
+    var dy = e.offsetY - cy;
     var mapScale = getMapInitialScale();
     bx += dx*mapScale;
     by += dy*mapScale;
-    x = e.offsetX;
-    y = e.offsetY;
-    updateBounds()
+    cx = e.offsetX;
+    cy = e.offsetY;
+    applyBounds()
   }
 }
 function pressUpHandler(e) {
   isDragging = false;
 }
+//TODO: variable scale origin, overidden by selected MRT station
 function wheelHandler(e) {
   event.preventDefault();
-  var mapInitialScale = getMapInitialScale();
-  var oldViewboxWidth =  mapWidth / scale;
-  var oldViewboxHeight =  mapHeight / scale;
-  scale += event.deltaY * -0.01;
-  scale = Math.min(Math.max(1, scale), 10);
-  var newViewboxWidth =  mapWidth / scale;
-  var newViewboxHeight =  mapHeight / scale;
-  bx -= ((oldViewboxWidth - newViewboxWidth)/2)*scale
-  by -= ((oldViewboxHeight - newViewboxHeight)/2)*scale
-  updateBounds()
+  var oldBounds = getCurrentBoundsMapCoordinates();
+  var oldMidpointX = oldBounds.x + oldBounds.width/2;
+  var oldMidpointY = oldBounds.y + oldBounds.height/2;
+  scale += scale*event.deltaY * -0.005;
+  scale = Math.min(Math.max(0.01, scale), 500);//15);
+  var newBounds = getCurrentBoundsMapCoordinates();
+  var newMidpointX = newBounds.x + newBounds.width/2;
+  var newMidpointY = newBounds.y + newBounds.height/2;
+
+  translateMapCoordinatesRelative(-newMidpointX+oldMidpointX, -newMidpointY+oldMidpointY)
+
+  applyBounds()
 }
 window.addEventListener('load', function(e) {
   map = document.getElementById("map")
@@ -59,6 +79,18 @@ window.addEventListener('load', function(e) {
 function scrollToStationCode(stationCode) {
     var elements = document.getElementsByClassName(stationCode);
     if (elements.length > 0) {
-      elements[0].scrollIntoView({behavior: "smooth", block: "center", inline: "center"})
+
+      var mapScale = getMapInitialScale();
+      var clientNewPoint = elements[0].getBoundingClientRect()
+      var clientNewMidpointX = clientNewPoint.x + clientNewPoint.width/2;
+      var clientNewMidpointY = clientNewPoint.y + clientNewPoint.height/2;
+      var clientMidpointX = map.clientWidth / 2;
+      var clientMidpointY = map.clientHeight / 2;
+      var clientdx = clientNewMidpointX - clientMidpointX;
+      var clientdy = clientNewMidpointY - clientMidpointY;
+      bx -= clientdx * mapScale;
+      by -= clientdy * mapScale;
+      applyBounds()
+      //elements[0].scrollIntoView({behavior: "smooth", block: "center", inline: "center"})
     }
 }
