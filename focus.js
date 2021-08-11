@@ -9,3 +9,10 @@ document.addEventListener('scroll', function(e) {
 window.onresize = function(event) {
     window.scrollTo(mx - window.innerWidth/2, my - window.innerHeight/2);
 };
+
+function scrollToStationCode(stationCode) {
+    var elements = document.getElementsByClassName(stationCode);
+    if (elements.length > 0) {
+      elements[0].scrollIntoView({behavior: "smooth", block: "center", inline: "center"})
+    }
+}

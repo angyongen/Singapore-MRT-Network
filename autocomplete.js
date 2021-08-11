@@ -108,11 +108,7 @@ window.addEventListener("load", function() {
   autocomplete(input, Object.keys(stationsMap), function (inp) {
     var stationCodes = stationsMap[inp.value];
     if (stationCodes.length > 0) {
-      var stationCode = stationCodes[0];
-      var elements = document.getElementsByClassName(stationCode);
-      if (elements.length > 0) {
-        elements[0].scrollIntoView({behavior: "smooth", block: "center", inline: "center"})
-      }
+      scrollToStationCode(stationCodes[0])
     }
   });
 })
