@@ -45,10 +45,22 @@ window.addEventListener("click", function (e) {
   updateSelectedStationCode(null)
 })
 
+var cbd;
+window.addEventListener("load", function(e) {
+  cbd = document.getElementById("cbd")
+})
+
+
 function scrollToStationCode(stationCode) {
   updateSelectedStationCode(stationCode)
-    var elements = document.getElementsByClassName(stationCode);
-    if (elements.length > 0) {
-      elements[0].scrollIntoView({behavior: "smooth", block: "center", inline: "center"})
-    }
+  var element = document.querySelector(".station." + stationCode);
+  if (element) {
+    element.scrollIntoView({behavior: "smooth", block: "center", inline: "center"})
+  }
+  //object area
+  var rect = element.getBoundingClientRect();
+  let webViewScale = window.visualViewport.scale;
+  let chromeZoom = window.devicePixelRatio;
+  console.log(rect)
+  return ((rect.width + rect.height)/2 * webViewScale);
 }
