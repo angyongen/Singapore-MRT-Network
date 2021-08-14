@@ -40,6 +40,11 @@ const mapWidth = 2099; const mapHeight = 1174.8;
 //client coordinates * mapInitialScale = scaled coordinates
 //scaled coordinates / scale = map coordinates
 
+//smooth scrolling
+var isSmoothApplying = false; var smoothStartTime;
+//the last applied bx by and scale. Modify only when actually applied.
+var lbx = 0; var lby = 0; var lscale = 1;
+
 var lastClientWidth, lastClientHeight, lastInitialScale;
 function getMapInitialScale() {
   if (map.clientWidth != lastClientWidth || map.clientHeight != lastClientHeight) {
@@ -58,6 +63,7 @@ function translateMapCoordinatesRelative(dx, dy) {
 function applyBounds() {
   //var b = getCurrentBoundsMapCoordinates();
   //console.log(b.x + "->" + (b.x + b.width) + ", " + b.y + "->" +(b.y + b.height))
+  lbx = bx; lby = by; lscale = scale;
   mapTransformer.setAttribute("transform", `translate(${bx}, ${by}) scale(${scale})`);
 }
 function pressDownHandler(e) {
@@ -67,7 +73,7 @@ function pressDownHandler(e) {
 }
 function moveHandler(e) {
   if ((e.buttons & 1) == 0) isDragging = false
-  if (isDragging === true) {
+  if (isDragging === true && isSmoothApplying === false) {
     var dx = e.offsetX - cx;
     var dy = e.offsetY - cy;
     var mapScale = getMapInitialScale();
@@ -81,48 +87,82 @@ function moveHandler(e) {
 function pressUpHandler(e) {
   isDragging = false;
 }
-//TODO: variable scale origin, overidden by selected MRT station
-function wheelHandler(e) {
-  event.preventDefault();
+function centeredRescale(newScale) {
   var oldBounds = getCurrentBoundsMapCoordinates();
   var oldMidpointX = oldBounds.x + oldBounds.width/2;
   var oldMidpointY = oldBounds.y + oldBounds.height/2;
-  scale += scale*event.deltaY * -0.005;
+  scale = newScale
   scale = Math.min(Math.max(0.01, scale), 500);//15);
   var newBounds = getCurrentBoundsMapCoordinates();
   var newMidpointX = newBounds.x + newBounds.width/2;
   var newMidpointY = newBounds.y + newBounds.height/2;
 
   translateMapCoordinatesRelative(-newMidpointX+oldMidpointX, -newMidpointY+oldMidpointY)
-
-  applyBounds()
+}
+//TODO: variable scale origin, overidden by selected MRT station
+function wheelHandler(e) {
+  event.preventDefault();
+  if (isSmoothApplying === false) {
+    centeredRescale(scale + scale*event.deltaY * -0.005)
+    applyBounds()
+  }
 }
 window.addEventListener('load', function(e) {
   map = document.getElementById("map")
   mapTransformer = map.getElementById("map_transformer")
-  document.body.addEventListener('mousedown', pressDownHandler);
-  document.body.addEventListener("mousemove", moveHandler);
-  document.body.addEventListener('mouseup', pressUpHandler);
-  document.body.addEventListener('wheel', wheelHandler, { passive: false });
+  map.addEventListener('mousedown', pressDownHandler);
+  map.addEventListener("mousemove", moveHandler);
+  map.addEventListener('mouseup', pressUpHandler);
+  map.addEventListener('wheel', wheelHandler, { passive: false });
   map.addEventListener("click", function (e) {updateSelectedStationCode(null)})
 });
 
 function scrollToStationCode(stationCode) {
   updateSelectedStationCode(stationCode)
-    var elements = document.getElementsByClassName(stationCode);
-    if (elements.length > 0) {
+  var element = document.querySelector(".station." + stationCode);
+  if (element) {
+    var mapScale = getMapInitialScale();
+    var clientNewPoint = element.getBoundingClientRect()
+    var clientNewMidpointX = clientNewPoint.x + clientNewPoint.width/2;
+    var clientNewMidpointY = clientNewPoint.y + clientNewPoint.height/2;
+    var clientMidpointX = map.clientWidth / 2;
+    var clientMidpointY = map.clientHeight / 2;
+    var clientdx = clientNewMidpointX - clientMidpointX;
+    var clientdy = clientNewMidpointY - clientMidpointY;
+    bx-=clientdx*mapScale
+    by-=clientdy*mapScale
 
-      var mapScale = getMapInitialScale();
-      var clientNewPoint = elements[0].getBoundingClientRect()
-      var clientNewMidpointX = clientNewPoint.x + clientNewPoint.width/2;
-      var clientNewMidpointY = clientNewPoint.y + clientNewPoint.height/2;
-      var clientMidpointX = map.clientWidth / 2;
-      var clientMidpointY = map.clientHeight / 2;
-      var clientdx = clientNewMidpointX - clientMidpointX;
-      var clientdy = clientNewMidpointY - clientMidpointY;
-      bx -= clientdx * mapScale;
-      by -= clientdy * mapScale;
-      applyBounds()
-      //elements[0].scrollIntoView({behavior: "smooth", block: "center", inline: "center"})
-    }
+    var scaleAdjust = 30/clientNewPoint.width
+    centeredRescale(scale*scaleAdjust)
+    //scale = clientNewPoint.width*mapScale*0.1
+    smoothApplyBounds()
+    //elements[0].scrollIntoView({behavior: "smooth", block: "center", inline: "center"})
+  }
+}
+
+function smoothLoop(timestamp) {
+  if (!isSmoothApplying) { 
+    smoothStartTime = timestamp; 
+    isSmoothApplying = true;
+  }
+  time = timestamp - smoothStartTime;
+  var multiplier = Math.min(1,time/500)
+  var dbx = bx - lbx;
+  var dby = by - lby;
+  var dscale = scale - lscale;
+  lbx += dbx*multiplier
+  lby += dby*multiplier
+  lscale += dscale*multiplier
+  mapTransformer.setAttribute("transform", `translate(${lbx}, ${lby}) scale(${lscale})`);
+  if (Math.abs(dbx)<1 && Math.abs(dby)<1 && Math.abs(dscale)<0.001) {
+    bx = lbx; by = lby; scale = lscale;
+    isSmoothApplying = false
+    console.log({dbx,dby,dscale})
+  } else {
+    window.requestAnimationFrame(smoothLoop);
+  }
+}
+
+function smoothApplyBounds() {
+    window.requestAnimationFrame(smoothLoop);
 }
