@@ -19,7 +19,7 @@ var arrowLookup = {
 }
 window.onload = function () {
     var timingScript = document.createElement("script");
-    if (startUpdate) startUpdate(timingCallback);
+    if (typeof startUpdate !== 'undefined') startUpdate(timingCallback);
 }
 function timingCallback(data) {
     for (var key in data) {
