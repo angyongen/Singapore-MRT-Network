@@ -67,20 +67,22 @@ function applyBounds() {
   mapTransformer.setAttribute("transform", `translate(${bx}, ${by}) scale(${scale})`);
 }
 function pressDownHandler(e) {
-  cx = e.offsetX;
-  cy = e.offsetY;
+  if (e.touches) e = e.touches[0]
+  cx = e.clientX;
+  cy = e.clientY;
   isDragging = true;
 }
 function moveHandler(e) {
-  if ((e.buttons & 1) == 0) isDragging = false
+  if (e.touches) e = e.touches[0]
+  if (e.buttons && (e.buttons & 1) == 0) isDragging = false
   if (isDragging === true && isSmoothApplying === false) {
-    var dx = e.offsetX - cx;
-    var dy = e.offsetY - cy;
+    var dx = e.clientX - cx;
+    var dy = e.clientY - cy;
     var mapScale = getMapInitialScale();
     bx += dx*mapScale;
     by += dy*mapScale;
-    cx = e.offsetX;
-    cy = e.offsetY;
+    cx = e.clientX;
+    cy = e.clientY;
     applyBounds()
   }
 }
@@ -110,9 +112,17 @@ function wheelHandler(e) {
 window.addEventListener('load', function(e) {
   map = document.getElementById("map")
   mapTransformer = map.getElementById("map_transformer")
+
+  map.addEventListener('pointerdown', pressDownHandler);
+  map.addEventListener('pointermove', moveHandler);
+  map.addEventListener('pointerup', pressUpHandler);
+  /*
+  map.addEventListener('touchstart', pressDownHandler);
   map.addEventListener('mousedown', pressDownHandler);
+  map.addEventListener('touchmove', moveHandler);
   map.addEventListener("mousemove", moveHandler);
   map.addEventListener('mouseup', pressUpHandler);
+  map.addEventListener('touchend', pressUpHandler);*/
   map.addEventListener('wheel', wheelHandler, { passive: false });
   map.addEventListener("click", function (e) {updateSelectedStationCode(null)})
 });

@@ -63,17 +63,17 @@ function scrollToStationCode(stationCode) {
   let chromeZoom = window.devicePixelRatio;
   return ((rect.width + rect.height)/2 * webViewScale);
 }
-
+/*
 function isWithinMiddleOfScreen(stationCode) {
 
   var element = document.querySelector(".station." + stationCode);
   if (element) {
-    var mapbound = {x:0,y:0,width:window.innerWidth,height:window.innerHeight}
+    var mapbound = {x:window.,y:0,width:window.innerWidth,height:window.innerHeight}
     var elembound = element.getBoundingClientRect()
     var mapmid = {x:mapbound.x+mapbound.width/2, y:mapbound.y+mapbound.height/2};
     var elemmid = {x:elembound.x+elembound.width/2, y:elembound.y+elembound.height/2};
     var diff = {x:Math.abs(mapmid.x-elemmid.x),y:Math.abs(mapmid.y-elemmid.y)}
-    console.log(diff)
+    console.log(diff.x + "," + diff.y)
 
   }
-}
+}*/
