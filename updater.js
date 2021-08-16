@@ -19,22 +19,21 @@ var arrowLookup = {
 }
 window.onload = function () {
     var timingScript = document.createElement("script");
-    timingScript.src = "timing.js"
-    timingScript.onload = function() {
-        startUpdate(function (data) {
-            for (var key in data) {
-                var target = key.split(">")[1];
-                var arrow = arrowLookup[target];
-                var arrowKey = key.replace(">"+target, "."+arrow)
-                var origin = key.replace(">"+target, "")
-                if (wrapper) {wrapper.put(origin, target, data[key].join(","))}
+    startUpdate(timingCallback);
+}
+function timingCallback(data) {
+    for (var key in data) {
+        var target = key.split(">")[1];
+        var arrow = arrowLookup[target];
+        var arrowKey = key.replace(">"+target, "."+arrow)
+        var origin = key.replace(">"+target, "")
+        if (wrapper) {wrapper.put(origin, target, data[key].join(","))}
 
-                var element = document.querySelector(".text." + arrowKey);
-                if (element) {
-                    element.textContent = Math.round(data[key][0]) + " min"
-                }
-            }
-        })
-	}
-    document.head.appendChild(timingScript)
+        var element = document.querySelector(".text." + arrowKey);
+        if (element) {
+            var nowDate = new Date();
+            var targetDate = new Date(data[key][0]);
+            element.textContent = Math.round((targetDate.getTime() - nowDate.getTime())/1000/60) + " min"
+        }
+    }
 }
