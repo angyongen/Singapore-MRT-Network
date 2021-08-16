@@ -23,9 +23,9 @@ var simpleStationsList = [
 ]
 
 function simpleStartUpdate(callback) {
-	setInterval(function() {callback(simpleGenerate())}, 3000);
+    callback(simpleGenerate());
+	setInterval(function() {callback(simpleGenerate())}, 60000);
 }
-
 function simpleGenerate() {
 	var data = {}
 	for (stations of simpleStationsList) {
@@ -35,7 +35,7 @@ function simpleGenerate() {
 			data[station+">"+target1] = [];
 			var time = new Date();
 			for (var i = 0; i < 5; i++) {
-			    time.setMinutes ( time.getMinutes() + Math.round(Math.random()*100)/10 );
+			    time.setSeconds ( time.getSeconds() + Math.random()*600 + 60 );
 				data[station+">"+target1].push(time.toJSON());
 			}
 		}
@@ -43,7 +43,7 @@ function simpleGenerate() {
 			data[station+">"+target2] = [];
 			var time = new Date();
 			for (var i = 0; i < 5; i++) {
-			    time.setMinutes ( time.getMinutes() + Math.round(Math.random()*100)/10 );
+			    time.setSeconds ( time.getSeconds() + Math.random()*600 + 60 );
 				data[station+">"+target2].push(time.toJSON());
 			}
 		}

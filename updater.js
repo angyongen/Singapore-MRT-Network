@@ -20,7 +20,9 @@ var arrowLookup = {
 window.onload = function () {
     var timingScript = document.createElement("script");
     if (typeof startUpdate !== 'undefined') startUpdate(timingCallback);
+    setInterval (recomputeTimings,1000)
 }
+var rawDates = {}
 function timingCallback(data) {
     for (var key in data) {
         var target = key.split(">")[1];
@@ -29,10 +31,15 @@ function timingCallback(data) {
         var origin = key.replace(">"+target, "")
         if (wrapper) {wrapper.put(origin, target, data[key].join(","))}
 
-        var element = document.querySelector(".text." + arrowKey);
+        rawDates[".text." + arrowKey] = new Date(data[key]);
+    }
+}
+function recomputeTimings() {
+    for (dateSel in rawDates) {
+        var element = document.querySelector(dateSel);
         if (element) {
             var nowDate = new Date();
-            var targetDate = new Date(data[key][0]);
+            var targetDate = rawDates[dateSel][0];
             element.textContent = Math.round((targetDate.getTime() - nowDate.getTime())/1000/60) + " min"
         }
     }
