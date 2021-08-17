@@ -31,7 +31,7 @@ function timingCallback(data) {
         var origin = key.replace(">"+target, "")
         if (wrapper) {wrapper.put(origin, target, data[key].join(","))}
 
-        rawDates[".text." + arrowKey] = new Date(data[key]);
+        rawDates[".text." + arrowKey] = data[key];
     }
 }
 function recomputeTimings() {
@@ -39,7 +39,7 @@ function recomputeTimings() {
         var element = document.querySelector(dateSel);
         if (element) {
             var nowDate = new Date();
-            var targetDate = rawDates[dateSel][0];
+            var targetDate = new Date(rawDates[dateSel][0]);
             element.textContent = Math.round((targetDate.getTime() - nowDate.getTime())/1000/60) + " min"
         }
     }
