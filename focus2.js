@@ -106,8 +106,8 @@ function wheelHandler(e) {
   event.preventDefault();
   if (isSmoothApplying === false) {
     centeredRescale(scale + scale*event.deltaY * -0.005)
-    //applyBounds()
-    smoothApplyBounds()
+    applyBounds()
+    //smoothApplyBounds()
   }
 }
 window.addEventListener('load', function(e) {
