@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
 .autocomplete-items, .autocomplete, input { box-sizing: border-box; }
 .autocomplete input {
     -webkit-text-size-adjust: 100%;
@@ -41,6 +42,7 @@ input[type=submit] {
   color: #fff;
 }
 .autocomplete-items {
+    font-family: Arial, sans-serif;
   position: absolute;
   border: 1px solid #d4d4d4;
   border-bottom: none;
