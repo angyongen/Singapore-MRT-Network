@@ -94,7 +94,7 @@ function centeredRescale(newScale) {
   var oldMidpointX = oldBounds.x + oldBounds.width/2;
   var oldMidpointY = oldBounds.y + oldBounds.height/2;
   scale = newScale
-  scale = Math.min(Math.max(0.02, scale), 400);//15);
+  scale = Math.min(Math.max(0.3, scale), 400);//15);
   var newBounds = getCurrentBoundsMapCoordinates();
   var newMidpointX = newBounds.x + newBounds.width/2;
   var newMidpointY = newBounds.y + newBounds.height/2;
