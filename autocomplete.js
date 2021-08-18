@@ -103,6 +103,7 @@ window.addEventListener("load", function() {
   var div = document.createElement("div")
   div.className = "autocomplete";
   var input = document.createElement("input")
+  input.type = "text"
   div.appendChild(input)
   document.body.appendChild(div)
   autocomplete(input, Object.keys(stationsMap), function (inp) {
