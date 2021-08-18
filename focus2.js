@@ -106,7 +106,8 @@ function wheelHandler(e) {
   event.preventDefault();
   if (isSmoothApplying === false) {
     centeredRescale(scale + scale*event.deltaY * -0.005)
-    applyBounds()
+    //applyBounds()
+    smoothApplyBounds()
   }
 }
 window.addEventListener('load', function(e) {
@@ -156,7 +157,8 @@ function smoothLoop(timestamp) {
     isSmoothApplying = true;
   }
   time = timestamp - smoothStartTime;
-  var multiplier = Math.min(1,time/500)
+  var multiplier = Math.max(Math.min(1,time/400),0.1)
+  multiplier *= multiplier;
   var dbx = bx - lbx;
   var dby = by - lby;
   var dscale = scale - lscale;
