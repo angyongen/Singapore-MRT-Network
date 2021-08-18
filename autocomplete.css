@@ -1,9 +1,29 @@
 .autocomplete-items, .autocomplete, input { box-sizing: border-box; }
-
+.autocomplete input {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    box-sizing: border-box;
+    color: inherit;
+    font: inherit;
+    margin: 0;
+    line-height: inherit;
+    animation-name: endBrowserAutofill;
+    background-color: #fff;
+    font-family: Roboto;
+    font-size: 15px;
+    font-weight: 300;
+    margin-left: 0px;
+    padding: 0 11px 0 13px;
+    text-overflow: ellipsis;
+    width: 400px;
+    z-index: 0;
+    position: relative;
+}
 .autocomplete {
   position: fixed;
   top: 0;
-  left: 0;
+  left: 188px;
+  width: 400px;
   display: inline-block;
 }
 input {

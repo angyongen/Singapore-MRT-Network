@@ -104,6 +104,7 @@ window.addEventListener("load", function() {
   div.className = "autocomplete";
   var input = document.createElement("input")
   input.type = "text"
+  input.placeholder = "Search Box"
   div.appendChild(input)
   document.body.appendChild(div)
   autocomplete(input, Object.keys(stationsMap), function (inp) {
